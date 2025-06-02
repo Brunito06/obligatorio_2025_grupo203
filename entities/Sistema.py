@@ -33,27 +33,29 @@ class Sistema():
 ##########CLIENTES##########
     def generar_id_cliente(self):
         return len(self.clientes) + 1 
-    
-    
 
-    # def registrar_cliente_particular(self, telefono, email, dni, nombre):
-    #     id = self.generar_id_cliente()
-    #     nuevo = Cliente.ClienteParticular(id, telefono, email, dni, nombre)
-    #     self.clientes = self.clientes.append(nuevo)
-    #     return nuevo
+    def registrar_cliente_particular(self, telefono, email, dni, nombre):
+        id = self.generar_id_cliente()
+        nuevo = Cliente.ClienteParticular(id, telefono, email, dni, nombre)
+        self.clientes.append(nuevo)
 
-    # def registrar_cliente_empresa(self, telefono, email, rut, nombre, web):
-    #     id = self.generar_id_cliente()
-    #     nuevo = Cliente.ClienteEmpresa(id, telefono, email, rut, nombre, web)
-    #     self.clientes = self.clientes.append(nuevo)
-    #     return nuevo
+        print(f"Cliente registrado con ID: {nuevo.id}")
+        print(self.clientes)
+
+        return nuevo
+
+    def registrar_cliente_empresa(self, telefono, email, rut, nombre, web):
+        id = self.generar_id_cliente()
+        nuevo = Cliente.ClienteEmpresa(id, telefono, email, rut, nombre, web)
+        self.clientes.append(nuevo)
+        return nuevo
 
     def listar_clientes(self):
         if not self.clientes:
             print("No hay clientes registrados - Volviendo al menú principal")
             return
         for cliente in self.clientes:
-            if cliente.tipo_cliente() == "Empresa":
+            if cliente.tipo_cliente == "Empresa":
                 print(f"ID: {cliente.id} | Tipo: Empresa | Nombre: {cliente.nombre} | RUT: {cliente.rut} | Teléfono: {cliente.telefono} | Email: {cliente.email} | Web: {cliente.web}")
             else:
                 print(f"ID: {cliente.id} | Tipo: Particular | Nombre: {cliente.nombre} | DNI: {cliente.dni} | Teléfono: {cliente.telefono} | Email: {cliente.email}")
@@ -84,4 +86,13 @@ class Sistema():
     def registrar_maquina(self, descripcion, requerimientos):
         code = self.generar_code_maquina()
         maquina_nueva = Maquina(code, descripcion, requerimientos)
+        self.maquinas.append(maquina_nueva)
+        return maquina_nueva
+
+    def listar_maquinas(self):
+        if not self.maquinas:
+            print("No hay máquinas registradas - Volviendo al menú principal")
+            return
+        for maquina in self.maquinas:
+            print(f"Código: {maquina.code} | Descripción: {maquina.descripcion} | Requerimientos: {maquina.requerimientos}")
 ##########MAQUINA##########

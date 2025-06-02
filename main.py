@@ -120,7 +120,7 @@ while True:
 
         elif opcion3 == 3:
             print("\nListar - Máquinas\n")
-            #sistema.listar_maquinas()
+            sistema.listar_maquinas()
 
         elif opcion3 == 4:
             print("\nListar - Piezas\n")
@@ -140,4 +140,3 @@ while True:
         break
     else:
         print("\nNúmero de operación no encontrado - Volviendo al menú principal")
-1
