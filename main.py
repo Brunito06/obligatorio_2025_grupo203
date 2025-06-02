@@ -42,6 +42,7 @@ while True:
         elif opcion2 == 2:
             print("\nRegistrar - Máquina\n")
             descripcion = input("Descripción: ")
+            requisitos = []
             while True:
                 print("\nAgregar requisito del pieza\n \n1. Si \n2. No")
                 try:
@@ -50,16 +51,32 @@ while True:
                     print("Debes ingresar un número.")
                     continue
                 if opcion4 == 1:
-                    print("\nLista de Piezas\n")
-                    for pieza in sistema.piezas:
+                    
+                    # Lista de piezas disponibles
+                    lista_piezas = sistema.piezas.copy()
+                    if not lista_piezas:
+                        print("No hay piezas disponibles") #si no hay piezas disponibres
+                        continue
+                    for pieza in lista_piezas:
+                        if pieza.code in requisitos:
+                            lista_piezas.remove(pieza) #si el codigo de la pieza ya está en requisitos, no lo muestra
+                    print("\nPiezas disponibles:")
+                    for pieza in lista_piezas:
                         print(f"Código: {pieza.code} | Descripción: {pieza.descripcion}")
+
                     try:
-                        codigoPieza = int(input("\nIngresa el código de la pieza: "))          
+                        codigoPieza = int(input("\nIngresa el código de la pieza: "))
+                        for pieza in sistema.piezas:
+                            if pieza.code == codigoPieza:
+                                requisitos.append(pieza.code)
+                                print("Pieza agregada como requisito.")
+                                break
                     except ValueError:
                         print("Debes ingresar un número.")
                         continue
 
                 elif opcion4 == 2:
+                    sistema.registrar_maquina(descripcion, requisitos)
                     print("\nMaquina agregada con exito!")
                     break
                 else:
