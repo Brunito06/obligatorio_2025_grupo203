@@ -5,6 +5,7 @@ from exceptions import ExceptionClienteYaExiste
 from entities import Cliente 
 from entities.Pieza import Pieza
 from entities.Maquina import Maquina
+from entities.Requerimiento import Requerimiento
 
 class Sistema():
     def __init__(self):
@@ -93,6 +94,16 @@ class Sistema():
         if not self.maquinas:
             print("No hay máquinas registradas - Volviendo al menú principal")
             return
+        
         for maquina in self.maquinas:
-            print(f"Código: {maquina.code} | Descripción: {maquina.descripcion} | Requerimientos: {maquina.requerimientos}")
+            lista_requerimientos = ""
+            for requerimiento in maquina.requerimientos:
+                lista_requerimientos += f"\n - {requerimiento}"
+            print(f"Código: {maquina.code} | Descripción: {maquina.descripcion} \nRequerimientos: {lista_requerimientos}\n")
 ##########MAQUINA##########
+
+##########REQUERIMIENTO##########
+    def registrar_requerimiento(self, maquina, pieza, cantidad):
+        nuevo_requerimiento = Requerimiento(maquina, pieza, cantidad)
+        return nuevo_requerimiento
+##########REQUERIMIENTO##########

@@ -1,5 +1,4 @@
 from entities.Sistema import Sistema
-
 sistema = Sistema()
 
 while True:
@@ -15,7 +14,7 @@ while True:
         continue
 
     if opcion1 == 1:
-        print("\n-- MENU DE REGISTRACIÓN --")
+        print("\n-- MENU DE REGISTRO --")
         print(
             "\n1. Pieza \n2. Máquina \n3. Cliente \n4. Pedido \n5. Reposición \n6. Salir \n"
         )
@@ -27,7 +26,11 @@ while True:
         
         if opcion2 == 1:
             print("\nRegistrar - Pieza\n")
-            descripcion = input("Descripción: ")
+            try:
+                descripcion = str(input("Descripción: "))
+            except ValueError:
+                print("Error: Debés ingresar una descripción válida.")
+                continue
             try:
                 costo = float(input("Costo: "))
                 lote = int(input("Lote: "))
@@ -43,40 +46,43 @@ while True:
             print("\nRegistrar - Máquina\n")
             descripcion = input("Descripción: ")
             requisitos = []
+            nueva_maquina = sistema.registrar_maquina(descripcion, requisitos)
+            lista_piezas = sistema.piezas.copy()
             while True:
-                print("\nAgregar requisito del pieza\n \n1. Si \n2. No")
+                print("\nAgregar requisito de pieza\n \n1. Si \n2. No")
                 try:
                     opcion4 = int(input("\nIngresa el número de operación: "))
                 except ValueError:
                     print("Debes ingresar un número.")
                     continue
                 if opcion4 == 1:
-                    
-                    # Lista de piezas disponibles
-                    lista_piezas = sistema.piezas.copy()
                     if not lista_piezas:
                         print("No hay piezas disponibles") #si no hay piezas disponibres
                         continue
-                    for pieza in lista_piezas:
-                        if pieza.code in requisitos:
-                            lista_piezas.remove(pieza) #si el codigo de la pieza ya está en requisitos, no lo muestra
                     print("\nPiezas disponibles:")
                     for pieza in lista_piezas:
                         print(f"Código: {pieza.code} | Descripción: {pieza.descripcion}")
 
                     try:
                         codigoPieza = int(input("\nIngresa el código de la pieza: "))
-                        for pieza in sistema.piezas:
+                        for pieza in lista_piezas:
                             if pieza.code == codigoPieza:
-                                requisitos.append(pieza.code)
-                                print("Pieza agregada como requisito.")
+                                cantidad = int(input("Cantidad requerida: "))
+                                if cantidad > 0:
+                                    requisitos.append(sistema.registrar_requerimiento(nueva_maquina, pieza, cantidad))
+                                    lista_piezas.remove(pieza)
+                                    print("Pieza agregada como requisito.")
+                                else:
+                                    print("La cantidad debe ser mayor a 0.")
+                                    continue
                                 break
+                            print("Código de pieza no encontrado.")
                     except ValueError:
                         print("Debes ingresar un número.")
                         continue
 
                 elif opcion4 == 2:
-                    sistema.registrar_maquina(descripcion, requisitos)
+                    
                     print("\nMaquina agregada con exito!")
                     break
                 else:
