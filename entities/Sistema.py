@@ -6,6 +6,7 @@ from entities import Cliente
 from entities.Pieza import Pieza
 from entities.Maquina import Maquina
 from entities.Requerimiento import Requerimiento
+from entities.Reposicion import Reposicion
 
 class Sistema():
     def __init__(self):
@@ -60,7 +61,6 @@ class Sistema():
                 print(f"ID: {cliente.id} | Tipo: Empresa | Nombre: {cliente.nombre} | RUT: {cliente.rut} | Teléfono: {cliente.telefono} | Email: {cliente.email} | Web: {cliente.web}")
             else:
                 print(f"ID: {cliente.id} | Tipo: Particular | Nombre: {cliente.nombre} | DNI: {cliente.dni} | Teléfono: {cliente.telefono} | Email: {cliente.email}")
-##########CLIENTES##########
 
 ##########PIEZAS##########
     def generar_code_pieza(self):
@@ -78,7 +78,6 @@ class Sistema():
             return
         for pieza in self.piezas:
             print(f"Código: {pieza.code} | Descripción: {pieza.descripcion} | Costo: {pieza.costo} | Lote: {pieza.lote} | Cantidad: {pieza.cantidad}")
-##########PIEZAS##########
 
 ##########MAQUINA##########
     def generar_code_maquina(self):
@@ -98,12 +97,17 @@ class Sistema():
         for maquina in self.maquinas:
             lista_requerimientos = ""
             for requerimiento in maquina.requerimientos:
-                lista_requerimientos += f"\n - {requerimiento}"
-            print(f"Código: {maquina.code} | Descripción: {maquina.descripcion} \nRequerimientos: {lista_requerimientos}\n")
-##########MAQUINA##########
+                lista_requerimientos += f"\n * {requerimiento}"
+            print(f"Código: {maquina.code} | Descripción: {maquina.descripcion} | Costo de produccion: {maquina.costo_produccion()} \nRequerimientos: {lista_requerimientos}\n")
 
 ##########REQUERIMIENTO##########
     def registrar_requerimiento(self, maquina, pieza, cantidad):
         nuevo_requerimiento = Requerimiento(maquina, pieza, cantidad)
         return nuevo_requerimiento
-##########REQUERIMIENTO##########
+
+##########REPOSICION##########
+    def generar_reposicion(self, pieza, cantidad_lotes, fecha_reposicion):
+        reposicion_nueva = Reposicion(pieza, cantidad_lotes, fecha_reposicion)
+        pieza.cantidad += cantidad_lotes * pieza.lote
+        costo_reposicion = reposicion_nueva.costo_reposicion()
+        return costo_reposicion

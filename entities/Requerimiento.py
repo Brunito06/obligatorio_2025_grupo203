@@ -5,4 +5,4 @@ class Requerimiento:
         self.cantidad = cantidad
 
     def __str__(self):
-        return f"Descripcion:{self.pieza.descripcion}, Cantidad: {self.cantidad}"
+        return f"Descripcion: {self.pieza.descripcion} - Cantidad: {self.cantidad}"

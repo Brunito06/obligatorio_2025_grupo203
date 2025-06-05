@@ -1,3 +1,5 @@
+import datetime
+
 from entities.Sistema import Sistema
 sistema = Sistema()
 
@@ -116,6 +118,25 @@ while True:
 
         elif opcion2 == 5:
             print("\nRegistrar - Reposición\n")
+            sistema.listar_piezas()
+            try:
+                codigo_pieza = int(input("Ingresa el código de la pieza a reponer: "))
+                for pieza in sistema.piezas:
+                    if pieza.code == codigo_pieza:
+                        cantidad_lotes = int(input("Cantidad de lotes a reponer: "))
+                        if cantidad_lotes > 0:
+                            fecha_reposicion = datetime.datetime.now()
+                            repo = sistema.generar_reposicion(pieza, cantidad_lotes, fecha_reposicion)
+                            print(f"\nReposicion finalizada. \n * Costo total de reposicion: ${repo}\n * Nueva cantidad de {pieza.descripcion}: {pieza.cantidad} unidades")
+                        else:
+                            print("La cantidad debe ser mayor a 0.")
+                        break
+                    else:
+                        print("Código de pieza no encontrado.")
+                        continue
+            except ValueError:
+                print("Debes ingresar un número.")
+                continue
 
         elif opcion2 == 6:
             continue
