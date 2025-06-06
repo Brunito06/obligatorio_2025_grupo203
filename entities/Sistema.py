@@ -1,3 +1,5 @@
+import datetime
+
 #Exceptions
 from exceptions import ExceptionClienteYaExiste
 
@@ -7,6 +9,7 @@ from entities.Pieza import Pieza
 from entities.Maquina import Maquina
 from entities.Requerimiento import Requerimiento
 from entities.Reposicion import Reposicion
+from entities.Pedido import Pedido
 
 class Sistema():
     def __init__(self):
@@ -30,6 +33,10 @@ class Sistema():
     @property
     def maquinas(self):
         return self.__maquinas
+    
+    @property
+    def pedidos(self):
+        return self.__pedidos
 
 
 ##########CLIENTES##########
@@ -42,7 +49,6 @@ class Sistema():
         self.clientes.append(nuevo)
 
         print(f"Cliente registrado con ID: {nuevo.id}")
-        print(self.clientes)
 
         return nuevo
 
@@ -104,10 +110,46 @@ class Sistema():
     def registrar_requerimiento(self, maquina, pieza, cantidad):
         nuevo_requerimiento = Requerimiento(maquina, pieza, cantidad)
         return nuevo_requerimiento
+    
+    def actualizar_pedidos(self):
+        for pedido in self.pedidos:
+            if pedido.estado == "Pendiente":
+                requerimientos_completos = 0
+                for requerimiento in pedido.maquina.requerimientos:
+                    for pieza in self.piezas:
+                        if requerimiento.pieza.code == pieza.code:
+                            if requerimiento.cantidad <= pieza.cantidad:
+                                requerimientos_completos += 1
+                
+                if requerimientos_completos == len(pedido.maquina.requerimientos):
+                    pedido.estado = "Entregado"
+                    pedido.fecha_entregado = datetime.datetime.now()
+
+                    for pieza in self.piezas:
+                        for requerimiento in pedido.maquina.requerimientos:
+                            if requerimiento.pieza.code == pieza.code:
+                                pieza.cantidad -= requerimiento.cantidad
 
 ##########REPOSICION##########
     def generar_reposicion(self, pieza, cantidad_lotes, fecha_reposicion):
         reposicion_nueva = Reposicion(pieza, cantidad_lotes, fecha_reposicion)
         pieza.cantidad += cantidad_lotes * pieza.lote
         costo_reposicion = reposicion_nueva.costo_reposicion()
+        self.actualizar_pedidos()
         return costo_reposicion
+    
+##########PEDIDO##########
+
+    def registrar_pedido(self, cliente, maquina, fecha_recibido, fecha_entregado, estado):
+        nuevo_pedido = Pedido(cliente, maquina, fecha_recibido, fecha_entregado, estado)
+        self.pedidos.append(nuevo_pedido)
+        self.actualizar_pedidos()
+        return nuevo_pedido
+    
+    def listar_pedidos(self):
+        if not self.pedidos:
+            print("No hay pedidos registrados - Volviendo al menú principal")
+            return
+        
+        for pedido in self.pedidos:
+            print(f"Cliente: {pedido.cliente.nombre} | Máquina: {pedido.maquina.descripcion} | Fecha Recibido: {pedido.fecha_recibido} | Fecha Entregado: {pedido.fecha_entregado} | Estado: {pedido.estado}")

@@ -116,6 +116,37 @@ while True:
         elif opcion2 == 4:
             print("\nRegistrar - Pedido\n")
 
+            sistema.listar_clientes()
+            try:
+                cliente_pedido = int(input("Ingresa el ID del cliente: "))
+                for cliente in sistema.clientes:
+                    if cliente.id == cliente_pedido:
+                        cliente_pedido = cliente
+                    else:
+                        print("ID de cliente no encontrado.")
+                        continue
+            except ValueError:
+                print("Debes ingresar un número válido para el ID del cliente.")
+                continue
+
+            sistema.listar_maquinas()
+            try:
+                codigo_maquina = int(input("Ingresa el código de la máquina: "))
+                for maquina in sistema.maquinas:
+                    if maquina.code == codigo_maquina:
+                        codigo_maquina = maquina
+                    else:
+                        print("Código de máquina no encontrado.")
+                        continue
+            except ValueError:
+                print("Debes ingresar un número válido para el código de la máquina.")
+                continue
+            fecha_recibido = datetime.datetime.now()
+            fecha_entregado = None
+            estado = "Pendiente"
+            pedido = sistema.registrar_pedido(cliente_pedido, codigo_maquina, fecha_recibido, fecha_entregado, estado)
+            print(f"\nPedido registrado para el cliente {cliente_pedido.nombre} y la máquina {maquina.descripcion}")
+
         elif opcion2 == 5:
             print("\nRegistrar - Reposición\n")
             sistema.listar_piezas()
@@ -160,7 +191,7 @@ while True:
 
         elif opcion3 == 2:
             print("\nListar - Pedidos\n")
-            #sistema.listar_pedidos()
+            sistema.listar_pedidos()
 
         elif opcion3 == 3:
             print("\nListar - Máquinas\n")
