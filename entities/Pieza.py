@@ -1,5 +1,5 @@
 class Pieza:
-    def __init__(self, code, descripcion, costo, lote, cantidad):
+    def __init__(self, code: int, descripcion: str, costo: float, lote: int, cantidad: int):
         self.code = code
         self.descripcion = descripcion
         self.costo = costo

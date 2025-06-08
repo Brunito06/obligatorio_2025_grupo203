@@ -1,7 +1,5 @@
-from .Requerimiento import Requerimiento
-
 class Maquina:
-    def __init__(self, code: int, descripcion, requerimientos: Requerimiento):
+    def __init__(self, code: int, descripcion, requerimientos):
         self.code = code
         self.descripcion = descripcion
         self.requerimientos = requerimientos
@@ -11,3 +9,9 @@ class Maquina:
         for requerimiento in self.requerimientos:
             costo_total += requerimiento.pieza.costo * requerimiento.cantidad
         return costo_total
+    
+    def disponbilidad(self):
+        pass
+
+    def agregar_requerimiento(self):
+        pass

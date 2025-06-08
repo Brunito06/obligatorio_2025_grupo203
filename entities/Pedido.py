@@ -10,3 +10,6 @@ class Pedido:
         self.fecha_recibido = fecha_recibido
         self.fecha_entregado = fecha_entregado
         self.estado = estado
+    
+    def precio_total(self):
+        return self.maquina.costo_produccion()

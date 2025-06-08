@@ -1,8 +1,5 @@
 import datetime
 
-#Exceptions
-from exceptions import ExceptionClienteYaExiste
-
 #Entities
 from entities import Cliente 
 from entities.Pieza import Pieza
@@ -56,6 +53,9 @@ class Sistema():
         id = self.generar_id_cliente()
         nuevo = Cliente.ClienteEmpresa(id, telefono, email, rut, nombre, web)
         self.clientes.append(nuevo)
+
+        print(f"Cliente registrado con ID: {nuevo.id}")
+
         return nuevo
 
     def listar_clientes(self):
@@ -63,7 +63,7 @@ class Sistema():
             print("No hay clientes registrados - Volviendo al menú principal")
             return
         for cliente in self.clientes:
-            if cliente.tipo_cliente == "Empresa":
+            if cliente.tipo_cliente() == "Empresa":
                 print(f"ID: {cliente.id} | Tipo: Empresa | Nombre: {cliente.nombre} | RUT: {cliente.rut} | Teléfono: {cliente.telefono} | Email: {cliente.email} | Web: {cliente.web}")
             else:
                 print(f"ID: {cliente.id} | Tipo: Particular | Nombre: {cliente.nombre} | DNI: {cliente.dni} | Teléfono: {cliente.telefono} | Email: {cliente.email}")
@@ -120,7 +120,7 @@ class Sistema():
                         if requerimiento.pieza.code == pieza.code:
                             if requerimiento.cantidad <= pieza.cantidad:
                                 requerimientos_completos += 1
-                
+
                 if requerimientos_completos == len(pedido.maquina.requerimientos):
                     pedido.estado = "Entregado"
                     pedido.fecha_entregado = datetime.datetime.now()
@@ -150,6 +150,53 @@ class Sistema():
         if not self.pedidos:
             print("No hay pedidos registrados - Volviendo al menú principal")
             return
-        
+
+        print("Filtrar:")
+        while True:
+            try:
+                opcion = int(input("1. Sí\n2. No\n\nSeleccione una opción: "))
+                if opcion == 1:
+                    estado = input("1. Pendientes\n2. Entregados\n\nSeleccione una opción: ")
+                    if estado == "1":
+                        for pedido in self.pedidos:
+                            if pedido.estado == "Pendiente":
+                                print(f"Cliente: {pedido.cliente.nombre} | Máquina: {pedido.maquina.descripcion} | Fecha Recibido: {pedido.fecha_recibido} | Fecha Entregado: {pedido.fecha_entregado} | Estado: {pedido.estado}")
+                        break
+                    elif estado == "2":
+                        for pedido in self.pedidos:
+                            if pedido.estado == "Entregado":
+                                print(f"Cliente: {pedido.cliente.nombre} | Máquina: {pedido.maquina.descripcion} | Fecha Recibido: {pedido.fecha_recibido} | Fecha Entregado: {pedido.fecha_entregado} | Estado: {pedido.estado}")
+                        break
+                    else:
+                        print("Opción de estado inválida, intente nuevamente.")
+                elif opcion == 2:
+                    for pedido in self.pedidos:
+                        print(f"Cliente: {pedido.cliente.nombre} | Máquina: {pedido.maquina.descripcion} | Fecha Recibido: {pedido.fecha_recibido} | Fecha Entregado: {pedido.fecha_entregado} | Estado: {pedido.estado}")
+                    break
+                else:
+                    print("Opción inválida, intente nuevamente.")
+            except ValueError:
+                print("Entrada inválida, por favor ingrese un número.")
+
+##########CONTABILIDAD##########
+
+    def listar_contabilidad(self):
+        if not self.pedidos:
+            print("No hay pedidos registrados - Volviendo al menú principal")
+            return
+
+        costo_total = 0
+        ingreso_total = 0
         for pedido in self.pedidos:
-            print(f"Cliente: {pedido.cliente.nombre} | Máquina: {pedido.maquina.descripcion} | Fecha Recibido: {pedido.fecha_recibido} | Fecha Entregado: {pedido.fecha_entregado} | Estado: {pedido.estado}")
+            if pedido.estado == "Entregado":
+                if pedido.cliente.tipo_cliente() == "Empresa":
+                    ingreso_total += pedido.maquina.costo_produccion() * 1.2
+                else:
+                    ingreso_total += pedido.maquina.costo_produccion() * 1.5
+                costo_total += pedido.maquina.costo_produccion()
+
+        ganancia_total = ingreso_total - costo_total
+        impuesto = ganancia_total * 0.25
+        ganancia_final = ganancia_total - impuesto
+
+        print(f" - Costo Total: {costo_total}\n - Ingreso Total: {ingreso_total}\n - Ganancia Total: {ganancia_total}\n - Impuesto (25%): {impuesto}\n - Ganancia Final: {ganancia_final}")

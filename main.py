@@ -3,6 +3,11 @@ import datetime
 from entities.Sistema import Sistema
 sistema = Sistema()
 
+from exceptions.ExceptionClienteYaExiste import ExceptionClienteYaExiste
+from exceptions.ExceptionPiezaYaExiste import ExceptionPiezaYaExiste
+from exceptions.ExceptionMaquinaYaExiste import ExceptionMaquinaYaExiste
+
+
 while True:
     print("\n-- MENÚ PRINCIPAL --")
     print(
@@ -28,11 +33,20 @@ while True:
         
         if opcion2 == 1:
             print("\nRegistrar - Pieza\n")
-            try:
-                descripcion = str(input("Descripción: "))
-            except ValueError:
-                print("Error: Debés ingresar una descripción válida.")
-                continue
+            while True:
+                try:
+                    descripcion = str(input("Descripción: "))
+                    for pieza in sistema.piezas:
+                        if not descripcion:
+                            raise ValueError("La descripción no puede estar vacía.")
+                        elif pieza.descripcion == descripcion:
+                            raise ExceptionPiezaYaExiste()
+                    break
+                except ExceptionPiezaYaExiste:
+                    print(f"Ya existe una pieza con la descripción: {descripcion}")
+                except ValueError:
+                    print("Debes ingresar un texto válido para la descripción.")
+
             try:
                 costo = float(input("Costo: "))
                 lote = int(input("Lote: "))
@@ -46,10 +60,51 @@ while True:
 
         elif opcion2 == 2:
             print("\nRegistrar - Máquina\n")
-            descripcion = input("Descripción: ")
-            requisitos = []
-            nueva_maquina = sistema.registrar_maquina(descripcion, requisitos)
             lista_piezas = sistema.piezas.copy()
+            descripcion = ""
+            while True:
+                if not lista_piezas:
+                    break
+                try:
+                    descripcion = str(input("Descripción: "))
+                    for maquina in sistema.maquinas:
+                        if not descripcion:
+                            raise ValueError()
+                        if maquina.descripcion == descripcion:
+                            raise ExceptionMaquinaYaExiste()
+                    break
+                except ExceptionMaquinaYaExiste:
+                    print(f"Ya existe una máquina con la descripción: {descripcion}")
+                except ValueError:
+                    print("Debes ingresar un texto válido para la descripción.")
+            requisitos = []
+            if not lista_piezas:
+                print("No es posible registrar una máquina sin piezas registradas.")
+                continue
+            nueva_maquina = sistema.registrar_maquina(descripcion, requisitos)
+            while True:
+                print("\nPiezas disponibles:")
+                for pieza in lista_piezas:
+                    print(f" * Código: {pieza.code} | Descripción: {pieza.descripcion}")
+                try:
+                    codigoPieza = int(input("\nIngresa el código de la pieza: "))
+                    for pieza in lista_piezas:
+                        if pieza.code == codigoPieza:
+                            cantidad = int(input("Cantidad requerida: "))
+                            if cantidad > 0:
+                                requisitos.append(sistema.registrar_requerimiento(nueva_maquina, pieza, cantidad))
+                                lista_piezas.remove(pieza)
+                                print("Pieza agregada como requisito.")
+                                break
+                            else:
+                                print("La cantidad debe ser mayor a 0.")
+                                continue
+                        else:
+                            print("Código de pieza no encontrado.")
+                    break
+                except ValueError:
+                    print("Debes ingresar un número.")
+                    continue
             while True:
                 print("\nAgregar requisito de pieza\n \n1. Si \n2. No")
                 try:
@@ -94,19 +149,71 @@ while True:
             print("\nRegistrar - Cliente\n")
             tipo = input("Tipo de cliente (1 - Particular, 2 - Empresa): ")
 
-            telefono = input("Teléfono: ")
-            email = input("Email: ")
+            while True:
+                try:
+                    telefono = int(input("Teléfono: "))
+                    if not telefono:
+                        raise ValueError()
+                except ValueError:
+                    print("Debes ingtesar telefono válido.")
+                    continue
+                break
+
+            while True:
+                try:
+                    email = str(input("Email: "))
+                    if not email:
+                        raise ValueError()
+                    if "@" not in email or "." not in email:
+                        raise ValueError()
+                except ValueError:
+                    print("Debes ingresar un email válido.")
+                    continue
+                break
 
             if tipo == "1":
-                dni = input("DNI: ")
+                while True:
+                    try:
+                        dni = str(input("DNI: "))
+                        for cliente in sistema.clientes:
+                            if cliente.dni == dni:
+                                raise ExceptionClienteYaExiste()
+                        break
+                    except ValueError:
+                        print("Debes ingresar un número válido para el DNI.")
+                    except ExceptionClienteYaExiste:
+                        print("Ya existe un cliente con el DNI: {dni}")
                 nombre = input("Nombre completo: ")
                 cliente = sistema.registrar_cliente_particular(telefono, email, dni, nombre)
                 print(f"\nCliente particular registrado con ID {cliente.id}")
 
             elif tipo == "2":
-                rut = input("RUT: ")
-                nombre = input("Nombre de empresa: ")
-                web = input("Sitio web: ")
+                while True:
+                    try:
+                        rut = str(input("RUT: "))
+                        for cliente in sistema.clientes:
+                            if cliente.tipo_cliente == "Empresa" and cliente.rut == rut:
+                                raise ExceptionClienteYaExiste()
+                        break
+                    except ValueError:
+                        print("Debes ingresar un número válido para el RUT.")
+                    except ExceptionClienteYaExiste:
+                        print(f"Ya existe un cliente con el RUT: {rut}")
+
+                nombre = str(input("Nombre de empresa: "))
+                
+                # web = str(input("Sitio web: "))
+                while True:
+                    try:
+                        web = str(input("Sitio web: "))
+                        if not web:
+                            raise ValueError()
+                        if "." not in web:
+                            raise ValueError()
+                        break
+                    except ValueError:
+                        print("Debes ingresar un sitio web válido.")
+                        continue
                 cliente = sistema.registrar_cliente_empresa(telefono, email, rut, nombre, web)
                 print(f"\nCliente empresa registrado con ID {cliente.id}")
 
@@ -149,6 +256,9 @@ while True:
 
         elif opcion2 == 5:
             print("\nRegistrar - Reposición\n")
+            if not sistema.piezas:
+                print("No hay piezas registradas - Volviendo al menú principal")
+                continue
             sistema.listar_piezas()
             try:
                 codigo_pieza = int(input("Ingresa el código de la pieza a reponer: "))
@@ -203,7 +313,7 @@ while True:
 
         elif opcion3 == 5:
             print("\nListar - Contabilidad\n")
-            #sistema.listar_contabilidad()
+            sistema.listar_contabilidad()
 
         elif opcion3 == 6:
             continue
